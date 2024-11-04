@@ -25,8 +25,8 @@ private class LeadWebServiceTest {
         Lead testLead = [SELECT Id FROM Lead WHERE Email = 'test1@example.com' LIMIT 1];
 
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('leadId', testLead.Id);
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', testLead.Id);
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -44,8 +44,8 @@ private class LeadWebServiceTest {
     @IsTest
     static void testGetLeadByEmail() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('email', 'test2@example.com');
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', 'test2@example.com');
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -63,8 +63,8 @@ private class LeadWebServiceTest {
     @IsTest
     static void testLeadNotFound() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('leadId', '00Q000000000000AAA');
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', '00Q000000000000AAA');
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -81,7 +81,7 @@ private class LeadWebServiceTest {
     @IsTest
     static void testInvalidRequest() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
+        req.requestURI = '/services/apexrest/Leads/';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -98,8 +98,8 @@ private class LeadWebServiceTest {
     @IsTest
     static void testExceptionHandling() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('leadId', 'testException'); 
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', 'testException');
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -117,8 +117,8 @@ private class LeadWebServiceTest {
     @IsTest
     static void testInvalidLeadIdFormat() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('leadId', 'INVALID_LEAD_ID'); 
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', 'INVALID_LEAD_ID');
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -135,8 +135,8 @@ private class LeadWebServiceTest {
     @IsTest
     static void testInvalidEmailFormat() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/*';
-        req.addParameter('email', 'INVALID_EMAIL_FORMAT'); 
+        req.requestURI = '/services/apexrest/Leads/';
+        req.params.put('leadIdOrEmail', 'INVALID_@EMAIL_FORMAT');
         RestContext.request = req;
 
         RestResponse res = new RestResponse();

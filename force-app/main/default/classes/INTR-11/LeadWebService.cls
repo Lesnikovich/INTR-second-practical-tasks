@@ -10,40 +10,42 @@ global with sharing class LeadWebService {
     @HttpGet
     global static LeadResponse getLead() {
         LeadResponse leadResponse = new LeadResponse();
+        List<Lead> leads = new List<Lead>();
         
         try{
             RestRequest req = RestContext.request;
-            String email = req.params.get('email');
-            String leadId = req.params.get('leadId');
+            String leadIdOrEmail = req.params.get('leadIdOrEmail');
 
-            if((Test.IsRunningTest() && leadId == 'testException')){
+            if((Test.IsRunningTest() && leadIdOrEmail == 'testException')){
                 throw new StringException('An exceptional situation has been tested.');
             }
 
-            if (String.isBlank(leadId) && String.isBlank(email)) {
+            if (String.isBlank(leadIdOrEmail)) {            
                 return setResponse(leadResponse, 400, 'The request was unacceptable. Please provide the necessary parameters (Lead Id or Email address).');
             }
 
-            if (!String.isBlank(leadId) && 
-                (!leadId.startsWith('00Q') || !Pattern.matches('^(?:[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18})$', leadId))) {
-                return setResponse(leadResponse, 400, 'Invalid Lead ID format. Please provide a valid Lead Id.');
+            if(leadIdOrEmail.contains('@')){
+                if (!Pattern.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$', leadIdOrEmail)) {
+                    return setResponse(leadResponse, 400, 'Invalid email format. Please provide a valid email address.');
+                }
+
+                leads = 
+                    [ SELECT Id, Name, Email, Company, Status, Phone, Title, Industry, Rating, CreatedDate 
+                      FROM Lead 
+                      WHERE Email = :leadIdOrEmail 
+                      LIMIT 1];
+            }else{
+                if(!leadIdOrEmail.startsWith('00Q') || !Pattern.matches('^(?:[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18})$', leadIdOrEmail)){
+                    return setResponse(leadResponse, 400, 'Invalid Lead ID format. Please provide a valid Lead Id.');
+                }
+                
+                leads =
+                    [ SELECT Id, Name, Email, Company, Status, Phone, Title, Industry, Rating, CreatedDate 
+                      FROM Lead 
+                      WHERE Id = :leadIdOrEmail
+                      LIMIT 1];
             }
 
-
-            if (!String.isBlank(email) && !Pattern.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$', email)) {
-                return setResponse(leadResponse, 400, 'Invalid email format. Please provide a valid email address.');
-            }
-
-            List<Lead> leads = !String.isBlank(leadId) 
-                ? [ SELECT Id, Name, Email, Company, Status, Phone, Title, Industry, Rating, CreatedDate 
-                    FROM Lead 
-                    WHERE Id = :leadId 
-                    LIMIT 1] 
-                : [ SELECT Id, Name, Email, Company, Status, Phone, Title, Industry, Rating, CreatedDate 
-                    FROM Lead 
-                    WHERE Email = :email 
-                    LIMIT 1];
-        
             leadResponse.lead = leads.isEmpty() ? null : leads[0];
 
             if (leadResponse.lead == null) {
