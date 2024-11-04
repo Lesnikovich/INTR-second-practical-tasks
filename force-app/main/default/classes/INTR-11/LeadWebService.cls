@@ -14,14 +14,14 @@ global with sharing class LeadWebService {
         
         try{
             RestRequest req = RestContext.request;
-            String leadIdOrEmail = req.params.get('leadIdOrEmail');
+            String leadIdOrEmail = req.requestURI.substring(req.requestURI.lastIndexOf('/')+1);
 
             if((Test.IsRunningTest() && leadIdOrEmail == 'testException')){
                 throw new StringException('An exceptional situation has been tested.');
             }
 
             if (String.isBlank(leadIdOrEmail)) {            
-                return setResponse(leadResponse, 400, 'The request was unacceptable. Please provide the necessary parameters (Lead Id or Email address).');
+                return setResponse(leadResponse, 400, 'The request was unacceptable. Please provide the necessary valid parameters (Lead Id or Email address).');
             }
 
             if(leadIdOrEmail.contains('@')){
@@ -34,8 +34,8 @@ global with sharing class LeadWebService {
                       FROM Lead 
                       WHERE Email = :leadIdOrEmail 
                       LIMIT 1];
-            }else{
-                if(!leadIdOrEmail.startsWith('00Q') || !Pattern.matches('^(?:[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18})$', leadIdOrEmail)){
+            }else if(leadIdOrEmail.startsWith('00Q')){
+                if(!Pattern.matches('^(?:[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18})$', leadIdOrEmail)){
                     return setResponse(leadResponse, 400, 'Invalid Lead ID format. Please provide a valid Lead Id.');
                 }
                 
@@ -44,6 +44,8 @@ global with sharing class LeadWebService {
                       FROM Lead 
                       WHERE Id = :leadIdOrEmail
                       LIMIT 1];
+            }else{
+                return setResponse(leadResponse, 400, 'The request was unacceptable. Please provide the necessary valid parameters (Lead Id or Email address).');
             }
 
             leadResponse.lead = leads.isEmpty() ? null : leads[0];

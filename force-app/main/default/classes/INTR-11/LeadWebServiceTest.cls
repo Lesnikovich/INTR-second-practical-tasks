@@ -25,8 +25,7 @@ private class LeadWebServiceTest {
         Lead testLead = [SELECT Id FROM Lead WHERE Email = 'test1@example.com' LIMIT 1];
 
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', testLead.Id);
+        req.requestURI = '/services/apexrest/Leads/' + testLead.Id;
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -44,8 +43,7 @@ private class LeadWebServiceTest {
     @IsTest
     static void testGetLeadByEmail() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', 'test2@example.com');
+        req.requestURI = '/services/apexrest/Leads/test2@example.com';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -63,8 +61,7 @@ private class LeadWebServiceTest {
     @IsTest
     static void testLeadNotFound() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', '00Q000000000000AAA');
+        req.requestURI = '/services/apexrest/Leads/00Q000000000000AAA';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -91,15 +88,14 @@ private class LeadWebServiceTest {
 
         Assert.areEqual(400, RestContext.response.statusCode);
         Assert.isFalse(response.success, 'Expected success to be false');
-        Assert.areEqual('The request was unacceptable. Please provide the necessary parameters (Lead Id or Email address).', response.resultMessage);
+        Assert.areEqual('The request was unacceptable. Please provide the necessary valid parameters (Lead Id or Email address).', response.resultMessage);
         Assert.isNull(response.lead, 'Expected lead to be null');
     }
 
     @IsTest
     static void testExceptionHandling() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', 'testException');
+        req.requestURI = '/services/apexrest/Leads/testException';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -117,8 +113,7 @@ private class LeadWebServiceTest {
     @IsTest
     static void testInvalidLeadIdFormat() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', 'INVALID_LEAD_ID');
+        req.requestURI = '/services/apexrest/Leads/00QQу00000DeFlmMAF';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -135,8 +130,7 @@ private class LeadWebServiceTest {
     @IsTest
     static void testInvalidEmailFormat() {
         RestRequest req = new RestRequest();
-        req.requestURI = '/services/apexrest/Leads/';
-        req.params.put('leadIdOrEmail', 'INVALID_@EMAIL_FORMAT');
+        req.requestURI = '/services/apexrest/Leads/brenda@car@dinal.net';
         RestContext.request = req;
 
         RestResponse res = new RestResponse();
@@ -149,4 +143,22 @@ private class LeadWebServiceTest {
         Assert.areEqual('Invalid email format. Please provide a valid email address.', response.resultMessage);
         Assert.isNull(response.lead, 'Expected lead to be null');
     }
+
+    @IsTest
+    static void testInvalidParameter() {
+        RestRequest req = new RestRequest();
+        req.requestURI = '/services/apexrest/Leads/invalidParameter';
+        RestContext.request = req;
+
+        RestResponse res = new RestResponse();
+        RestContext.response = res;
+
+        LeadWebService.LeadResponse response = LeadWebService.getLead();
+
+        Assert.areEqual(400, RestContext.response.statusCode);
+        Assert.isFalse(response.success, 'Expected success to be false');
+        Assert.areEqual('The request was unacceptable. Please provide the necessary valid parameters (Lead Id or Email address).', response.resultMessage);
+        Assert.isNull(response.lead, 'Expected lead to be null');
+    }
+
 }
