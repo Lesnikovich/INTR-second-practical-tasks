@@ -22,7 +22,7 @@ global with sharing class TaskWebService {
             }
             
             if (String.isBlank(leadIdOrEmail)) {
-                return setResponse(taskResponse, 400, 'Parameter leadIdOrNone is empty. Please provide the necessary parameters (Lead Id or Email address).');
+                return setResponse(taskResponse, 400, 'Parameter leadIdOrEmail is empty. Please provide the necessary parameters (Lead Id or Email address).');
             }
 
             if (taskBody == null || taskBody.isEmpty()) {
