@@ -1,4 +1,4 @@
-public class DailyOutdatedContactsBatch implements Database.Batchable<SObject>, Database.AllowsCallouts {
+public class DailyOutdatedContactsBatch implements Database.Batchable<SObject> {
 
     public Database.QueryLocator start(Database.BatchableContext bc) {
         return Database.getQueryLocator([SELECT Id, Name, OwnerId FROM Contact WHERE Is_Outdated__c = TRUE]);
